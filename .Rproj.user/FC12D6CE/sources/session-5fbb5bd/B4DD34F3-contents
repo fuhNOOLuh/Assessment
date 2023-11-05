@@ -1,0 +1,48 @@
+---
+title: "PU5063 FCousins"
+author: "Me"
+date: "`r format(Sys.time(), '%d %B, %Y, %H:%M')`"
+knit: (function(inputFile, encoding) {
+      out_dir <- "outputs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_dir=file.path(dirname(inputFile), out_dir))})
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r loading packages}
+library(tidyverse)
+library(here)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r Step 0: Define Question}
+# What are the regional trends for the percentage of the population prescribed drugs for anxiety, depression and psychosis in Scotland over the last ten years? What might these mean for employers allocation of support resources?
+```
+
+```{r Step 1: Data Acquisition}
+# The data was downloaded from https://scotland.shinyapps.io/ScotPHO_profiles_tool/ on 05/11/23 for the item "population prescribed drugs for anxiety/depression/psychosis" for all available years and all health boards and council areas
+#reading in the data:
+library(tidyverse)
+adp_data <- read_csv(here("Inputs/timetrend_data.csv"))
+head(adp_data)
+```
+
+```{r Step 2: Prepare/Clear}
+#The data is already tidy and there are no missing values
+```
+
+```{r Step 3: Analyse}
+
+```
+
+```{r Step 4: Communication}
+
+```
+
