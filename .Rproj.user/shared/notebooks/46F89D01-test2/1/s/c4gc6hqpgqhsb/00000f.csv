@@ -1,0 +1,4 @@
+"0","summed_data %>% "
+"0","  ggplot() +"
+"0","  "
+"0","  geom_area(aes(x = year, y = total_number, fill = Region))"
