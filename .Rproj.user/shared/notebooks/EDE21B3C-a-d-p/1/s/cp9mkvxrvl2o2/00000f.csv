@@ -1,0 +1,28 @@
+"0","# This chunk is for selecting and renaming columns and removing the NHS prefix."
+"0",""
+"0","clean_data <- adp_data %>%"
+"0","  select('area_name','year','numerator', 'measure') %>% "
+"0","  rename(no_prescriptions = 'numerator', NHS = 'area_name', "
+"0","         percentage_pop = 'measure') %>% "
+"0","  mutate(NHS = sub(""^NHS "","""", NHS)) %>% "
+"0","  "
+"0","  # the below line is necessary to calculate the national population for "
+"0","# recalculating percentages later"
+"0","  mutate(board_population = no_prescriptions / percentage_pop * 100)"
+"0","glimpse(clean_data)"
+"1","Rows: 180"
+"1",""
+"1","
+"
+"1","Columns: 5"
+"1",""
+"1","
+"
+"1","$ NHS              [3m[38;5;246m<chr>[39m[23m ""Scotland"", ""Ayrshire & Arran"", ""Borders"", ""Dumfries & Galloway"", ""Fife"", ""Forth Valley"", ""Grampia…
+$ year             [3m[38;5;246m<dbl>[39m[23m 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2011, 20…
+$ no_prescriptions [3m[38;5;246m<dbl>[39m[23m 787040, 60822, 17226, 22280, 55334, 43976, 70337, 187333, 43033, 104352, 111323, 2605, 2703, 61911…
+$ percentage_pop   [3m[38;5;246m<dbl>[39m[23m 14.96, 16.31, 15.15, 14.75, 15.26, 14.86, 12.45, 16.61, 13.48, 16.07, 13.49, 12.28, 11.72, 15.21, …
+$ board_population [3m[38;5;246m<dbl>[39m[23m 5260962.57, 372912.32, 113702.97, 151050.85, 362608.13, 295935.40, 564955.82, 1127832.63, 319235.9…"
+"1",""
+"1","
+"

@@ -1,0 +1,5 @@
+"0","#Now to re-calculate the regional percentages"
+"0","summed_data <- group_data %>% "
+"0","  group_by(Region, year) %>% "
+"0","  summarise(total_people = sum(number))"
+"2","`summarise()` has grouped output by 'Region'. You can override using the `.groups` argument."

@@ -1,5 +1,0 @@
-"0","options(scipen = 999)"
-"0","summed_data %>% "
-"0","  ggplot() +"
-"0","  "
-"0","  geom_area(aes(x = year, y = people, fill = Region))"

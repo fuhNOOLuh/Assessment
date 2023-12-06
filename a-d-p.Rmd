@@ -1,0 +1,191 @@
+---
+title: "Trend in the percentage of the Scottish population prescribed drugs for anxiety, depression or psychosis"
+author: "Fionnuala Cousins 52319277"
+date: "`r format(Sys.time(), '%d %B, %Y, %H:%M')`"
+knit: (function(inputFile, encoding) {
+      out_dir <- "outputs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_dir=file.path(dirname(inputFile), out_dir))})
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading packages}
+# tidyverse includes dplyr and ggplot2 so I don't need to load them separately
+library(tidyverse)
+library(here)
+library(viridis)
+```
+
+# Step 0: Define the question
+
+What are the regional trends for the number of people prescribed drugs for 
+anxiety, depression and psychosis in Scotland over the last ten years?
+What might these mean for employers' allocation of support resources? The next 
+sections follow the Health Data Science Workflow to address these questions.
+
+# Step 1: Data Acquisition
+
+The data was downloaded from the Scottish Public Health Observatory
+<https://scotland.shinyapps.io/ScotPHO_profiles_tool/> on 05/11/23 for the item
+"population prescribed drugs for anxiety/depression/psychosis" for all available
+years (2010-2021 inclusive) and all 14 health boards in Scotland, as well as an
+overall Scotland dataset. The downloaded file was called timetrend_data.csv
+
+```{r Step 1: Data Acquisition}
+#reading in the data and checking its columns:
+adp_data <- read_csv(here("Inputs/timetrend_data.csv"))
+glimpse(adp_data)
+```
+# Step 2: Prepare/ clean data
+
+## Is it tidy? 
+
+### Does each variable form a column? 
+Yes, for example, Year is a variable so has a single column rather than a column for each year. 
+
+### Does each observation form a row? 
+Yes. While there are multiple columns, they are each just clarifying the observed value rather than additional observations themselves (for example, confidence intervals).
+
+### Is each cell a single value? 
+Yes, for example, there are no commas separating values. The period column data is in the format "YYYY/YYYY financial year" but this is still a single value because financial years always span two sequential calendar years.
+```{r checking for duplicates}
+unique_columns <- c("area_code", "year")
+duplicates <- adp_data[duplicated(adp_data[, unique_columns]) | duplicated
+                       (adp_data[, unique_columns], fromLast = TRUE), ]
+print(duplicates)
+```
+```{r cutting out columns}
+# This chunk is for selecting and renaming columns and removing the NHS prefix.
+
+clean_data <- adp_data %>%
+  select('area_name','year','numerator', 'measure') %>% 
+  rename(no_prescriptions = 'numerator', NHS = 'area_name', 
+         percentage_pop = 'measure') %>% 
+  mutate(NHS = sub("^NHS ","", NHS)) %>% 
+  
+  # the below line is necessary to calculate the national population for 
+# recalculating percentages later
+  mutate(board_population = no_prescriptions / percentage_pop * 100)
+glimpse(clean_data)
+```
+
+# Step 3: Analyse
+
+14 Health Boards are too many to plot in the same visualisation; the audience
+would be overwhelmed. The boards need to be merged into a small number of 
+groups. This will also mean that their values need to recalculated so each group
+can be understood as a percentage of the population of Scotland.
+
+
+```{r forming regions}
+#This chunk groups the boards into regions
+group_data <- clean_data %>% 
+  mutate(Region = case_when(
+    NHS %in% c("Ayrshire & Arran" , "Borders" , "Dumfries & Galloway")
+    ~ "Borders",
+    NHS %in% c("Fife" , "Forth Valley" , "Greater Glasgow & Clyde" , 
+               "Lanarkshire" , "Lothian")
+    ~ "Central Belt",
+    NHS %in% c("Grampian" , "Tayside")
+    ~ "North East",
+    NHS %in% c("Highland" , "Western Isles" , "Orkney" , "Shetland")
+    ~ "Highlands & Islands",
+    NHS %in% c("Scotland") ~ "Scotland"))
+glimpse(group_data)
+```
+
+```{r calculating regional prescriptions as percentage of Scottish population}
+# The below is all one chunk because it would not work in separate chunks.
+# This was explained by ChatGPT (2023)
+
+# This code was difficult to arrive at and could be reworked. 
+
+# The below creates a total number of prescriptions per region
+regional_data <- group_data %>% 
+  group_by(Region, year) %>% 
+  summarise(board_population = sum(board_population), regional_prescriptions = 
+              sum(no_prescriptions))
+
+# The below creates a tibble for the annual calculated Scottish population
+scotland_population <- regional_data %>% filter(Region == "Scotland") %>% 
+  rename(whole_population = board_population, scotland_prescriptions = 
+           regional_prescriptions)
+
+# The below creates each regional number of prescriptions as a percentage of the
+#scottish population for that year. 
+plot_data <- regional_data %>% 
+  left_join(scotland_population, by = 'year') %>% 
+  mutate(percentage_scot_pop = regional_prescriptions / whole_population * 100)
+glimpse(plot_data)
+
+```
+# Step 4: Communication
+
+The final step is to generate the visualisation. This graph shows the increase
+in prescriptions for anxiety, depression and psychosis across Scotland from 
+2010-2021, broken down into four broad regions of Scotland. 
+```{r plotting the visualisation}
+plot_data %>% 
+  filter(Region.x != "Scotland") %>% 
+  ggplot(aes(x = year, y = percentage_scot_pop, fill = Region.x)) +
+  geom_area()+
+  labs(fill="Region")+
+  xlab("Year")+
+  ylab("number of prescriptions as percentage of population")+
+  ggtitle("Trend in estimated population percentage prescribed drugs for 
+          anxiety, depression or psychosis in Scotland by region")+
+  scale_fill_viridis(discrete=TRUE)+
+  scale_x_continuous(breaks = unique(plot_data$year))+
+  theme_bw()
+
+```
+
+
+# References
+
+I acknowledge the use of ChatGTP (chat.openai.com) to troubleshoot coding issues on this
+assignment. 
+
+I entered the following prompt on 7 November 2023
+
+>> I am using ggplot to plot a stacked area chart. the plot is showing only select years' as ticks on the x-axis. how do i get it to label all the years? This is my ggplot code options(scipen = 999)
+summed_data %>% 
+  ggplot(aes(x = year, y = total_people, fill = Region)) +
+  geom_area()+
+  xlab("Year")+
+  ylab("Estimated number of people")+
+  ggtitle("Trend in estimated population prescribed drugs for anxiety, depression or psychosis by Scottish region")+
+  scale_fill_viridis(discrete=TRUE)+
+  theme_bw()
+  
+The content generated from this prompt was used to add all year labels to the axis. 
+
+I entered the following prompt on 19 November 2023:
+
+>> In the following sequence of coding, why am I getting an error that "object 'regional_prescriptions' not found" at the end, when that object is used earlier in the code? ```{r}
+#This chunk creates a total number of prescriptions per region
+regional_data <- group_data %>% 
+  group_by(Region, year) %>% 
+  summarise(board_population = sum(board_population), regional_prescriptions = sum(no_prescriptions))
+view(regional_data)
+```
+>>#This chunk creates a tibble for the annual calcuated Scottish population
+scotland_population <- regional_data %>% filter(Region == "Scotland") %>% 
+  rename(whole_population = board_population)
+view(scotland_population)
+```
+>>plot_data <- regional_data %>% 
+  left_join(scotland_population, by = 'year') %>% 
+  mutate(percentage_scot_pop = regional_prescriptions / whole_population * 100)
+>>view(plot_data)
+>>Provide information on the ethical considerations when using generative artificial intelligence tools
+
+The content generated from this prompt was used to fix errors in the code. The code was then further editeed.
+

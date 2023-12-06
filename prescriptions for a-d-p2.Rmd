@@ -1,0 +1,150 @@
+---
+title: "Population prescribed drugs for anxiety or depression or psychosis"
+author: "Fionnuala Cousins 52319277"
+date: "`r format(Sys.time(), '%d %B, %Y, %H:%M')`"
+knit: (function(inputFile, encoding) {
+      out_dir <- "outputs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_dir=file.path(dirname(inputFile), out_dir))})
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading packages}
+# tidyverse includes dplyr and ggplot2 so I don't need to load them separately
+library(tidyverse)
+library(here)
+library(viridis)
+library(plotly)
+```
+
+```{r Step 0: Define Question}
+```
+
+# Question
+
+What are the regional trends for the number of people prescribed drugs for 
+anxiety, depression and psychosis in Scotland over the last ten years?
+What might these mean for employers' allocation of support resources? The next 
+sections follow the Health Data Science Workflow to address these questions.
+
+# Data Acquisition
+
+The data was downloaded from 
+<https://scotland.shinyapps.io/ScotPHO_profiles_tool/> on 05/11/23 for the item
+"population prescribed drugs for anxiety/depression/psychosis" for all available
+years and all health boards. The downloaded file was called timetrend_data.csv
+
+
+```{r Step 1: Data Acquisition}
+#reading in the data and checking its columns:
+adp_data <- read_csv(here("Inputs/timetrend_data.csv"))
+glimpse(adp_data)
+```
+
+#Prepare/Clean Data
+
+##Is it tidy? 
+
+###Does each variable form a column? Yes, for example, Year is a variable so has a single column rather than a column for each year. 
+
+###Does each observation form a row? Yes. While there are multiple columns, they are each just clarifying the observed value rather than additional observations themselves (for example, confidence intervals).
+
+###Is each cell a single value? Yes, for example, there are no commas separating values. The period column data is in the format "YYYY/YYYY financial year" but this is still a single value because financial years always span two sequential calendar years. 
+
+### Are there duplicate values?
+```{r}
+# checking for duplicates
+unique_columns <- c("area_code", "year")
+duplicates <- adp_data[duplicated(adp_data[, unique_columns]) | duplicated(adp_data[, unique_columns], fromLast = TRUE), ]
+print(duplicates)
+```
+
+```{r Step 2: Prepare/Clear}
+# 
+# This chunk is for selecting and renaming columns and removing the NHS prefix.
+
+clean_data <- adp_data %>%
+  select('area_name','year','numerator', 'measure') %>% 
+  rename(no_prescriptions = 'numerator', NHS = 'area_name', percentage_pop = 'measure') %>% 
+  mutate(NHS = sub("^NHS ","", NHS)) %>% 
+  mutate(board_population = no_prescriptions / percentage_pop * 100)
+head(clean_data)
+
+```
+```{r}
+# The below code plots the data as-is. It's here so anyone can plot it and see  
+# for themselves that 14 is too many categories, but it's commented out so it 
+# doesn't get confused with the intended plot.
+
+# options(scipen = 999)
+# clean_data %>% 
+#  filter(NHS != "Scotland") %>% 
+#   ggplot() +
+  
+#   geom_area(aes(x = year, y = no_prescriptions, fill = NHS))
+```
+
+
+#Analyse 
+
+14 Health Boards are too many to plot in the same visualisation; the audience
+would be overwhelmed. So, I will create a new column, classifying neighbouring
+NHS boards into Central Belt, Borders, Highlands and Islands and North East. 
+Then, I have to sum the old NHS Board percentages for each year into a single 
+value for the Region for that year.
+
+```{r Step 3: Analyse}
+#I wanted to use functions from the course but when I looked up how to recategorise a categorical variable, all the answers were using functions we hadn't used. So, I asked chatgpt. First, it advised a statement for each NHS Board but I knew it could be done in groups and using | or %in% so I modified the prompt. 
+group_data <- clean_data %>% 
+  mutate(Region = case_when(
+    NHS %in% c("Ayrshire & Arran" , "Borders" , "Dumfries & Galloway")
+    ~ "Borders",
+    NHS %in% c("Fife" , "Forth Valley" , "Greater Glasgow & Clyde" , 
+               "Lanarkshire" , "Lothian")
+    ~ "Central Belt",
+    NHS %in% c("Grampian" , "Tayside")
+    ~ "North East",
+    NHS %in% c("Highland" , "Western Isles" , "Orkney" , "Shetland")
+    ~ "Highlands & Islands"))
+
+
+```
+
+
+```{r}
+#Now to re-calculate the regional percentages
+summed_data <- group_data %>% 
+  group_by(Region, year) %>% 
+  mutate(region_pop = sum(board_population)) %>% 
+  mutate(region_prescriptions = sum(no_prescriptions)) %>% 
+  summarise(percentage = region_prescriptions / sum() * 100)
+glimpse(summed_data)
+
+```
+
+
+```{r Step 4: Communication, fig.width = 10}
+options(scipen = 999)
+summed_data %>% 
+  ggplot(aes(x = year, y = percentage, fill = Region)) +
+  geom_area()+
+  xlab("Year")+
+  ylab("Percentage of people")+
+  ggtitle("Trend in estimated population prescribed drugs for anxiety, depression or psychosis in Scotland by region")+
+  scale_fill_viridis(discrete=TRUE)+
+  scale_x_continuous(breaks = unique(summed_data$year))+
+  theme_bw()
+
+# If switching the output to html, this line shows values when hovered over. 
+# It's commented out here because the output is PDF. 
+# ggplotly(tooltip = c("x", "y"))
+
+```
+

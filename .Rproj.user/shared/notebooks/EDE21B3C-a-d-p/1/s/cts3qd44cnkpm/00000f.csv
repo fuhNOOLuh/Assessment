@@ -1,0 +1,40 @@
+"0","# The below is all one chunk because it would not work in separate chunks."
+"0",""
+"0","# This code was difficult to arrive at and could be reworked. "
+"0",""
+"0","# The below creates a total number of prescriptions per region"
+"0","regional_data <- group_data %>% "
+"0","  group_by(Region, year) %>% "
+"0","  summarise(board_population = sum(board_population), regional_prescriptions = "
+"0","              sum(no_prescriptions))"
+"2","`summarise()` has grouped output by 'Region'. You can override using the `.groups` argument."
+"0","# The below creates a tibble for the annual calculated Scottish population"
+"0","scotland_population <- regional_data %>% filter(Region == ""Scotland"") %>% "
+"0","  rename(whole_population = board_population, scotland_prescriptions = "
+"0","           regional_prescriptions)"
+"0",""
+"0","# The below creates each regional number of prescriptions as a percentage of the"
+"0","#scottish population for that year. "
+"0","plot_data <- regional_data %>% "
+"0","  left_join(scotland_population, by = 'year') %>% "
+"0","  mutate(percentage_scot_pop = regional_prescriptions / whole_population * 100)"
+"0","glimpse(plot_data)"
+"1","Rows: 60"
+"1",""
+"1","
+"
+"1","Columns: 8"
+"1",""
+"1","
+"
+"1","$ Region.x               [3m[38;5;246m<chr>[39m[23m ""Borders"", ""Borders"", ""Borders"", ""Borders"", ""Borders"", ""Borders"", ""Borders"", ""Borders"", ""Bor…
+$ year                   [3m[38;5;246m<dbl>[39m[23m 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2010, 2011, 2012, 20…
+$ board_population       [3m[38;5;246m<dbl>[39m[23m 637666.1, 639032.5, 637888.7, 636439.7, 635120.8, 634302.5, 634548.9, 634507.7, 633672.0, 63…
+$ regional_prescriptions [3m[38;5;246m<dbl>[39m[23m 100328, 104934, 108404, 112404, 116487, 121085, 125073, 127668, 131143, 134771, 132116, 1386…
+$ Region.y               [3m[38;5;246m<chr>[39m[23m ""Scotland"", ""Scotland"", ""Scotland"", ""Scotland"", ""Scotland"", ""Scotland"", ""Scotland"", ""Scotlan…
+$ whole_population       [3m[38;5;246m<dbl>[39m[23m 5260963, 5298679, 5314503, 5328123, 5347916, 5373612, 5404938, 5424128, 5438212, 5461964, 54…
+$ scotland_prescriptions [3m[38;5;246m<dbl>[39m[23m 787040, 826064, 861481, 894059, 928933, 965638, 997211, 1019736, 1049031, 1076007, 1054374, …
+$ percentage_scot_pop    [3m[38;5;246m<dbl>[39m[23m 1.9070274, 1.9803805, 2.0397767, 2.1096361, 2.1781756, 2.2533262, 2.3140507, 2.3537057, 2.41…"
+"1",""
+"1","
+"

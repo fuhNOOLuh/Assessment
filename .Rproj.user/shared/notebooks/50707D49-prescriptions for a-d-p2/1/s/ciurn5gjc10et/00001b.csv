@@ -1,0 +1,11 @@
+"0","#Now to re-calculate the regional percentages"
+"0","summed_data <- group_data %>% "
+"0","  group_by(Region, year) %>% "
+"0","  mutate(region_pop = sum(board_population)) %>% "
+"0","  mutate(region_prescrptions = sum(no_prescriptions)) %>% "
+"0","  summarise(percentage = no_prescriptions / sum(region_pop) * 100)"
+"2","Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in dplyr 1.1.0.
+Please use `reframe()` instead.
+When switching from `summarise()` to `reframe()`, remember that `reframe()` always returns an ungrouped data frame and adjust accordingly."
+"2","`summarise()` has grouped output by 'Region', 'year'. You can override using the `.groups` argument."
+"0","head(summed_data)"

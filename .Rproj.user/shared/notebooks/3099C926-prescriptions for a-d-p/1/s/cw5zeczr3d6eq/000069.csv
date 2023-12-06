@@ -1,0 +1,5 @@
+"0",""
+"0","# If switching the output to html, this line shows values when hovered over. "
+"0","# It's commented out here because the output is PDF. "
+"0","# ggplotly(tooltip = c(""x"", ""y""))"
+"0",""

@@ -1,0 +1,21 @@
+based on topic i chose
+
+briefly introduce problem
+highlight challenges, drawn from guest speakers, explain why it's a challenge, what can be done to address it
+
+context: explain challenges, why they ecist
+content: relevant challenges
+under: explaining well
+readability and: looks.
+
+
+example: not pretty but doesn't matter. rating system is good. 
+
+bias: inconsistent formats, classification bias, comorbidity? demography, 
+repro: methods need to be clear enough for repro
+sharing: granularity. incompatible data protection law
+harmo: formats, was cleansing just for the purpose of that project or a standard for thereafter. per capita, normalised. expressed appropriate for each country
+multimodality: free-text vs code, acute v chronic conditions
+
+Dimitra list:
+repro: share plan, code, data set (syntehtic if necessary), how has this affected what might do. e.g. if people looked at before, publication bias? not open access journal, haven't shared code, 

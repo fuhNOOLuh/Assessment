@@ -1,0 +1,8 @@
+"0","# The below code plots the data as-is. It's here so anyone can plot it and see  "
+"0","# for themselves that 14 is too many categories, but it's commented out so it "
+"0","# doesn't get confused with the intended plot."
+"0","# options(scipen = 999)"
+"0","# clean_data %>% "
+"0","#   ggplot() +"
+"0","  "
+"0","#   geom_area(aes(x = year, y = number, fill = NHS))"

@@ -1,0 +1,31 @@
+"0","#This chunk groups the boards into regions"
+"0","group_data <- clean_data %>% "
+"0","  mutate(Region = case_when("
+"0","    NHS %in% c(""Ayrshire & Arran"" , ""Borders"" , ""Dumfries & Galloway"")"
+"0","    ~ ""Borders"","
+"0","    NHS %in% c(""Fife"" , ""Forth Valley"" , ""Greater Glasgow & Clyde"" , "
+"0","               ""Lanarkshire"" , ""Lothian"")"
+"0","    ~ ""Central Belt"","
+"0","    NHS %in% c(""Grampian"" , ""Tayside"")"
+"0","    ~ ""North East"","
+"0","    NHS %in% c(""Highland"" , ""Western Isles"" , ""Orkney"" , ""Shetland"")"
+"0","    ~ ""Highlands & Islands"","
+"0","    NHS %in% c(""Scotland"") ~ ""Scotland""))"
+"0","glimpse(group_data)"
+"1","Rows: 180"
+"1",""
+"1","
+"
+"1","Columns: 6"
+"1",""
+"1","
+"
+"1","$ NHS              [3m[38;5;246m<chr>[39m[23m ""Scotland"", ""Ayrshire & Arran"", ""Borders"", ""Dumfries & Galloway"", ""Fife"", ""Forth Valley"", ""Grampia…
+$ year             [3m[38;5;246m<dbl>[39m[23m 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2011, 20…
+$ no_prescriptions [3m[38;5;246m<dbl>[39m[23m 787040, 60822, 17226, 22280, 55334, 43976, 70337, 187333, 43033, 104352, 111323, 2605, 2703, 61911…
+$ percentage_pop   [3m[38;5;246m<dbl>[39m[23m 14.96, 16.31, 15.15, 14.75, 15.26, 14.86, 12.45, 16.61, 13.48, 16.07, 13.49, 12.28, 11.72, 15.21, …
+$ board_population [3m[38;5;246m<dbl>[39m[23m 5260962.57, 372912.32, 113702.97, 151050.85, 362608.13, 295935.40, 564955.82, 1127832.63, 319235.9…
+$ Region           [3m[38;5;246m<chr>[39m[23m ""Scotland"", ""Borders"", ""Borders"", ""Borders"", ""Central Belt"", ""Central Belt"", ""North East"", ""Centra…"
+"1",""
+"1","
+"

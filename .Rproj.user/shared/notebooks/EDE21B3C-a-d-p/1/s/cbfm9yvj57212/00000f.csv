@@ -1,0 +1,4 @@
+"0","# checking for duplicates"
+"0","unique_columns <- c(""area_code"", ""year"")"
+"0","duplicates <- adp_data[duplicated(adp_data[, unique_columns]) | duplicated(adp_data[, unique_columns], fromLast = TRUE), ]"
+"0","print(duplicates)"
